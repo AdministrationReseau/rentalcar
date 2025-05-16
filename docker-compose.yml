@@ -2,27 +2,33 @@ version: '3.9'
 
 services:
     scylla:
-        image: tonuser/scylla-bdd:1.0
+        image: adminreseau01/scylla:latest
+        container_name: scylla-rentacar
         ports:
             - "9045:9042"
         volumes:
             - scylla-data:/var/lib/scylla
         networks:
             - backend
+        command: --smp 1 --memory 512M --overprovisioned 1 --api-address 0.0.0.0
 
-    spring-app:
-        build: .
+    api:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: rentacar-api
         ports:
             - "8080:8080"
         depends_on:
             - scylla
         environment:
-        - SPRING_CASSANDRA_CONTACT-POINTS=scylla
-        - SPRING_CASSANDRA_PORT=9045
-        - SPRING_CASSANDRA_KEYSPACE-NAME=rental
-        - SPRING_CASSANDRA_USERNAME=cassandra
-        - SPRING_CASSANDRA_PASSWORD=cassandra
-        - SPRING_CASSANDRA_LOCAL-DATACENTER=datacenter1
+            - SPRING_PROFILES_ACTIVE=prod
+            - SPRING_DATA_CASSANDRA_CONTACT_POINTS=scylla
+            - SPRING_DATA_CASSANDRA_PORT=9045
+            - SPRING_DATA_CASSANDRA_KEYSPACE_NAME=rental
+            - SPRING_DATA_CASSANDRA_USERNAME=cassandra
+            - SPRING_DATA_CASSANDRA_PASSWORD=cassandra
+            - SPRING_DATA_CASSANDRA_LOCAL_DATACENTER=datacenter1
         networks:
             - backend
 
@@ -31,3 +37,4 @@ volumes:
 
 networks:
     backend:
+        driver: bridge
