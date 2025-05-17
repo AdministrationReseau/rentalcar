@@ -78,29 +78,73 @@ public class AuthProxyController {
         description = "Transfère la requête de connexion au service externe"
     )
     @PostMapping("/login")
-    public Mono<ResponseEntity<AuthenticationResponse>> login(@Valid @RequestBody UserLoginRequest request) {
-        return webClient.post()
-            .uri("/auth-service/auth/login")
-            .bodyValue(request)
+    public Mono<ResponseEntity<Object>> login(@Valid @RequestBody UserLoginRequest request) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String jsonBody = mapper.writeValueAsString(request);
+            System.out.println("Corps de la requête login: " + jsonBody);
+
+            return webClient.post()
+                .uri("/auth-service/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(jsonBody)
+                .retrieve()
+                .bodyToMono(Object.class)
+                .doOnNext(response -> System.out.println("Réponse login: " + response))
+                .map(response -> ResponseEntity.ok(response))
+                .onErrorResume(e -> {
+                    System.err.println("Erreur login: " + e.getMessage());
+                    if (e instanceof WebClientResponseException) {
+                        WebClientResponseException wcre = (WebClientResponseException) e;
+                        System.err.println("Corps de l'erreur login: " + wcre.getResponseBodyAsString());
+                        return Mono.just(ResponseEntity.status(wcre.getStatusCode())
+                            .body(wcre.getResponseBodyAsString()));
+                    }
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Erreur de communication avec le service d'authentification: " + e.getMessage()));
+                });
+        } catch (JsonProcessingException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Erreur de sérialisation: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/validate-token")
+    public Mono<ResponseEntity<Object>> validateToken(@RequestHeader("Authorization") String token) {
+        return webClient.get()
+            .uri("/auth-service/auth/validate-token")
+            .header("Authorization", token)
             .retrieve()
-            .bodyToMono(ExternalAuthResponse.class)
-            .map(externalResponse -> {
-                // Convertir la réponse externe en AuthenticationResponse
-                AuthenticationResponse response = mapToAuthenticationResponse(externalResponse);
-
-                // Déterminer le statut HTTP en fonction du succès de l'opération
-                HttpStatus status = response.isSuccess() ? HttpStatus.OK : HttpStatus.UNAUTHORIZED;
-
-                return ResponseEntity.status(status).body(response);
-            })
+            .bodyToMono(Object.class)
+            .map(response -> ResponseEntity.ok(response))
             .onErrorResume(e -> {
-                // En cas d'erreur, retourner une réponse d'échec
-                AuthenticationResponse errorResponse = AuthenticationResponse.builder()
-                    .success(false)
-                    .message("Erreur lors de la communication avec le service externe: " + e.getMessage())
-                    .build();
+                if (e instanceof WebClientResponseException) {
+                    WebClientResponseException wcre = (WebClientResponseException) e;
+                    return Mono.just(ResponseEntity.status(wcre.getStatusCode())
+                        .body(wcre.getResponseBodyAsString()));
+                }
+                return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur lors de la validation du token: " + e.getMessage()));
+            });
+    }
 
-                return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse));
+    @PostMapping("/logout")
+    public Mono<ResponseEntity<Object>> logout(@RequestHeader("Authorization") String token) {
+        return webClient.post()
+            .uri("/auth-service/auth/logout")
+            .header("Authorization", token)
+            .retrieve()
+            .bodyToMono(Object.class)
+            .map(response -> ResponseEntity.ok(response))
+            .onErrorResume(e -> {
+                if (e instanceof WebClientResponseException) {
+                    WebClientResponseException wcre = (WebClientResponseException) e;
+                    return Mono.just(ResponseEntity.status(wcre.getStatusCode())
+                        .body(wcre.getResponseBodyAsString()));
+                }
+                return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur lors de la déconnexion: " + e.getMessage()));
             });
     }
 
