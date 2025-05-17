@@ -31,7 +31,7 @@ public class UserResponse {
     @Schema(description = "Numéro de téléphone", example = "+237675473829")
     private String phoneNumber;
 
-    @Schema(description = "Rôle de l'utilisateur", example = "customer", allowableValues = {"customer", "agency_owner", "admin"})
+    @Schema(description = "Rôle de l'utilisateur", example = "user", allowableValues = {"user", "admin", "guest", "staff"})
     private String role;
 
     @Schema(description = "Date de création du compte", example = "2025-05-15T15:30:45")

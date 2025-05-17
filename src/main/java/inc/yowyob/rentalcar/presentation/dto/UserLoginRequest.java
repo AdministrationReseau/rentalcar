@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Requête de connexion utilisateur")
 public class UserLoginRequest {
 
-    @NotBlank(message = "L'email est obligatoire")
-    @Schema(description = "Nom d'utilisateur ou email", example = "johndoe@example.com", required = true)
+    @NotBlank(message = "Le username est obligatoire")
+    @Schema(description = "Nom d'utilisateur ou email", example = "johndoe", required = true)
     private String username;
 
     @NotBlank(message = "Le mot de passe est obligatoire")
