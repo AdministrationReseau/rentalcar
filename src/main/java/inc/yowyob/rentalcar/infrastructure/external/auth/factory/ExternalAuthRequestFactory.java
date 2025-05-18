@@ -14,7 +14,7 @@ public class ExternalAuthRequestFactory {
             .email(user.getEmail())
             .password(user.getPassword())
             .name(user.getName())
-            .phone_number(user.getPhoneNumber())
+            .phoneNumber(user.getPhoneNumber())
             .build();
     }
 

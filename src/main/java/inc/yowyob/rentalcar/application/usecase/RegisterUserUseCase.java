@@ -5,7 +5,7 @@ import inc.yowyob.rentalcar.application.dto.RegisterUserDTO;
 import inc.yowyob.rentalcar.application.mapper.UserMapper;
 import inc.yowyob.rentalcar.domain.exception.AuthenticationException;
 import inc.yowyob.rentalcar.domain.exception.UserAlreadyExistsException;
-import inc.yowyob.rentalcar.domain.model.User;
+import inc.yowyob.rentalcar.domain.model.AuthenticationResult;
 import inc.yowyob.rentalcar.domain.service.AuthenticationService;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +24,8 @@ public class RegisterUserUseCase {
 
     public AuthResponseDTO execute(RegisterUserDTO registerUserDTO) {
         try {
-            User registeredUser = authenticationService.register(
+            // Utiliser la nouvelle méthode qui retourne aussi le token
+            AuthenticationResult result = authenticationService.registerWithToken(
                 registerUserDTO.getUsername(),
                 registerUserDTO.getEmail(),
                 registerUserDTO.getName(),
@@ -34,7 +35,8 @@ public class RegisterUserUseCase {
             );
 
             return AuthResponseDTO.builder()
-                .user(userMapper.toDTO(registeredUser))
+                .user(userMapper.toDTO(result.getUser()))
+                .token(result.getToken())
                 .success(true)
                 .message("Utilisateur enregistré avec succès")
                 .build();

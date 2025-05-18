@@ -4,7 +4,7 @@ import inc.yowyob.rentalcar.application.dto.AuthResponseDTO;
 import inc.yowyob.rentalcar.application.dto.LoginUserDTO;
 import inc.yowyob.rentalcar.application.mapper.UserMapper;
 import inc.yowyob.rentalcar.domain.exception.AuthenticationException;
-import inc.yowyob.rentalcar.domain.model.User;
+import inc.yowyob.rentalcar.domain.model.AuthenticationResult;
 import inc.yowyob.rentalcar.domain.service.AuthenticationService;
 import org.springframework.stereotype.Component;
 
@@ -25,20 +25,24 @@ public class LoginUserUseCase {
 
     public AuthResponseDTO execute(LoginUserDTO loginUserDTO) {
         try {
-            Optional<User> authenticatedUser = authenticationService.login(
+            // Utiliser la nouvelle méthode qui retourne aussi le token
+            Optional<AuthenticationResult> resultOpt = authenticationService.loginWithToken(
                 loginUserDTO.getUsername(),
                 loginUserDTO.getPassword()
             );
 
-            if (authenticatedUser.isEmpty()) {
+            if (resultOpt.isEmpty()) {
                 return AuthResponseDTO.builder()
                     .success(false)
                     .message("Email ou mot de passe incorrect")
                     .build();
             }
 
+            AuthenticationResult result = resultOpt.get();
+
             return AuthResponseDTO.builder()
-                .user(userMapper.toDTO(authenticatedUser.get()))
+                .user(userMapper.toDTO(result.getUser()))
+                .token(result.getToken())
                 .success(true)
                 .message("Authentification réussie")
                 .build();

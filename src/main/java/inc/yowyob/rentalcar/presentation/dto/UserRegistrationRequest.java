@@ -38,6 +38,6 @@ public class UserRegistrationRequest {
     private String password;
 
     @NotBlank(message = "Le rôle est obligatoire")
-    @Schema(description = "Rôle de l'utilisateur", example = "customer", allowableValues = {"customer", "agency_owner", "staff"}, required = true)
+    @Schema(description = "Rôle de l'utilisateur", example = "user", allowableValues = {"user", "admin", "guest", "staff"}, required = true)
     private String role;
 }
