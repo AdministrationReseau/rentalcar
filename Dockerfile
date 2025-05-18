@@ -1,12 +1,16 @@
-FROM maven:3.8.6-openjdk-21-slim AS build
+# Étape de build
+FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY pom.xml .
-RUN mvn dependency:go-offline
+# Active le téléchargement des dépendances
+RUN mvn dependency:go-offline -Dfile.encoding=UTF-8
 
+# Copie des sources et compilation
 COPY src ./src
-RUN mvn package -DskipTests
+RUN mvn package -DskipTests -Dfile.encoding=UTF-8
 
-FROM openjdk:21-slim AS runtime
+# Étape d'exécution avec une image plus légère
+FROM eclipse-temurin:21-jre-jammy AS runtime
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
