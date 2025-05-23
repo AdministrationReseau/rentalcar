@@ -1,326 +1,291 @@
-# Projet Spring Boot en Clean Architecture
+# Easy Rental Car API
 
-## Description
-Ce projet implémente une application Spring Boot suivant les principes de la Clean Architecture, avec l'utilisation des design patterns Builder et Factory pour gérer efficacement les communications avec des APIs externes. L'architecture est conçue pour permettre le stockage des données générales dans des APIs externes tout en conservant des données spécifiques dans notre propre base de données.
+## 📋 Description
 
-## Structure du Projet
+Easy Rental Car API est une application Spring Boot développée selon les principes de la **Clean Architecture**. Elle fournit une API REST robuste pour la gestion de location de véhicules avec authentification externe et stockage distribué.
+
+### Caractéristiques principales
+
+- ✅ **Architecture Clean** - Séparation claire des responsabilités
+- ✅ **Authentification externe** - Intégration avec un service d'authentification tiers
+- ✅ **Base de données NoSQL** - Utilisation de Cassandra/ScyllaDB
+- ✅ **Design Patterns** - Implementation des patterns Builder et Factory
+- ✅ **Documentation API** - Swagger/OpenAPI intégré
+- ✅ **Validation** - Validation des données d'entrée avec Bean Validation
+- ✅ **Gestion d'erreurs** - Gestion globale des exceptions
+- ✅ **Containerisation** - Docker et Docker Compose prêts
+
+## 🏗️ Architecture
+
+Le projet suit l'architecture en couches (Clean Architecture) :
 
 ```
-projet-clean-architecture/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/
-│   │   │       └── example/
-│   │   │           └── cleanarchitecture/
-│   │   │               ├── CleanArchitectureApplication.java
-│   │   │               ├── domain/
-│   │   │               │   ├── model/
-│   │   │               │   ├── repository/
-│   │   │               │   ├── service/
-│   │   │               │   └── exception/
-│   │   │               ├── application/
-│   │   │               │   ├── service/
-│   │   │               │   ├── dto/
-│   │   │               │   └── mapper/
-│   │   │               ├── infrastructure/
-│   │   │               │   ├── persistence/
-│   │   │               │   │   ├── entity/
-│   │   │               │   │   ├── repository/
-│   │   │               │   │   └── adapter/
-│   │   │               │   ├── external/
-│   │   │               │   │   ├── api/
-│   │   │               │   │   │   ├── client/
-│   │   │               │   │   │   ├── dto/
-│   │   │               │   │   │   ├── mapper/
-│   │   │               │   │   │   └── factory/
-│   │   │               │   │   └── notification/
-│   │   │               │   │       ├── client/
-│   │   │               │   │       ├── dto/
-│   │   │               │   │       └── adapter/
-│   │   │               │   └── config/
-│   │   │               └── presentation/
-│   │   │                   ├── controller/
-│   │   │                   ├── dto/
-│   │   │                   ├── mapper/
-│   │   │                   └── exception/
-│   │   └── resources/
-│   │       ├── application.yml
-│   │       ├── application-dev.yml
-│   │       └── application-prod.yml
-│   └── test/
-│       └── java/
-│           └── com/
-│               └── example/
-│                   └── cleanarchitecture/
-│                       ├── domain/
-│                       ├── application/
-│                       ├── infrastructure/
-│                       └── presentation/
-├── .gitignore
-├── build.gradle
-└── README.md
+├── 📁 domain/              # Cœur métier - Entités et règles business
+│   ├── model/              # Modèles du domaine
+│   ├── repository/         # Interfaces des repositories
+│   ├── service/            # Interfaces des services métier
+│   └── exception/          # Exceptions métier
+├── 📁 application/         # Couche application - Use cases
+│   ├── service/            # Implémentations des services
+│   ├── usecase/            # Cas d'usage métier
+│   ├── dto/                # DTOs de la couche application
+│   └── mapper/             # Mappers application
+├── 📁 infrastructure/      # Couche infrastructure - Implémentations techniques
+│   ├── persistence/        # Persistance des données (Cassandra)
+│   ├── external/           # Services externes (Auth, Notifications, Payments)
+│   └── config/             # Configuration Spring
+└── 📁 presentation/        # Couche présentation - API REST
+    ├── controller/         # Contrôleurs REST
+    ├── dto/                # DTOs de l'API
+    ├── mapper/             # Mappers de présentation
+    └── exception/          # Gestion des erreurs HTTP
 ```
 
-## Description Détaillée des Couches de l'Architecture
+## 🚀 Technologies utilisées
 
-### 1. Domain (Couche de Domaine)
+### Backend
+- **Java 21** - Langage de programmation
+- **Spring Boot 3.2.5** - Framework principal
+- **Spring Data Cassandra** - Accès aux données
+- **Spring WebFlux** - Client HTTP réactif
+- **Spring Validation** - Validation des données
 
-C'est le cœur de l'application, indépendant de toute technologie ou framework externe.
+### Base de données
+- **ScyllaDB** - Base de données NoSQL haute performance
 
-#### model/
-- Contient les entités du domaine qui représentent les concepts métier
-- Ces classes sont pures et ne contiennent que des données et la logique métier
-- Exemple: `User.java`, `Product.java`, etc.
+### Documentation & Tests
+- **SpringDoc OpenAPI** - Documentation automatique de l'API
+- **JUnit 5** - Tests unitaires
 
-#### repository/
-- Interfaces définissant les contrats pour la persistance des entités du domaine
-- N'implémente pas la persistance, seulement les contrats
-- Exemple: `UserRepository.java`, `ProductRepository.java`
+### DevOps
+- **Docker & Docker Compose** - Containerisation
+- **Maven** - Gestion des dépendances
 
-#### service/
-- Interfaces définissant les services métier
-- Exemple: `UserService.java`, `ProductService.java`, etc.
+## 📦 Installation et démarrage
 
-#### exception/
-- Exceptions spécifiques au domaine
-- Exemple: `DomainException.java`, `UserNotFoundException.java`
+### Prérequis
 
-### 2. Application (Couche d'Application)
+- Java 21+
+- Docker et Docker Compose
+- Maven 3.6+
 
-Cette couche orchestrent les flux de données entre la couche de présentation et le domaine.
+### 1. Cloner le repository
 
-#### service/
-- Implémentations des interfaces de service du domaine
-- Orchestre les appels aux repositories
-- Exemple: `UserServiceImpl.java`, `ProductServiceImpl.java`
+```bash
+git clone <repository-url>
+cd rentalcar
+```
 
-#### dto/
-- Objets de transfert de données utilisés par la couche d'application
-- Exemple: `UserDTO.java`, `ProductDTO.java`
+### 2. Démarrage avec Docker Compose
 
-#### mapper/
-- Classes responsables de la conversion entre les objets du domaine et les DTOs
-- Exemple: `UserMapper.java`, `ProductMapper.java`
+```bash
+# Construire et démarrer tous les services
+docker-compose up --build
 
-### 3. Infrastructure (Couche d'Infrastructure)
+# Ou en arrière-plan
+docker-compose up -d --build
+```
 
-Cette couche contient toutes les implémentations techniques et les adaptateurs pour les services externes.
+L'application sera accessible sur :
+- **API** : http://localhost:8080
+- **Documentation Swagger** : http://localhost:8080/swagger-ui.html
+- **ScyllaDB** : localhost:9045
 
-#### persistence/entity/
-- Entités JPA pour la persistance des données
-- Mappent les entités du domaine vers la base de données
-- Exemple: `UserEntity.java`, `ProductEntity.java`
+### 3. Démarrage en développement
 
-#### persistence/repository/
-- Implémentations Spring Data JPA des repositories
-- Exemple: `UserJpaRepository.java`, `ProductJpaRepository.java`
+```bash
+# Démarrer uniquement la base de données
+docker-compose up scylla -d
 
-#### persistence/adapter/
-- Adaptateurs qui implémentent les interfaces de repository du domaine
-- Utilisent les repositories JPA
-- Exemple: `UserRepositoryAdapter.java`, `ProductRepositoryAdapter.java`
+# Démarrer l'application en mode développement
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
 
-#### external/api/client/
-- Clients pour les APIs externes
-- Utilisent RestTemplate, WebClient ou Feign
-- Exemple: `ExternalApiClient.java`, `ThirdPartyServiceClient.java`
+## 📚 Utilisation de l'API
 
-#### external/api/dto/
-- DTOs pour les APIs externes
-- Exemple: `ExternalUserDTO.java`, `ThirdPartyProductDTO.java`
+### Endpoints principaux
 
-#### external/api/mapper/
-- Mappers pour convertir entre les DTOs externes et les modèles du domaine
-- Exemple: `ExternalUserMapper.java`, `ThirdPartyProductMapper.java`
+#### Authentification
+- `POST /api/auth/register` - Inscription d'un nouvel utilisateur
+- `POST /api/auth/login` - Connexion utilisateur
+- `POST /api/proxy/auth/register` - Proxy d'inscription (évite CORS)
+- `POST /api/proxy/auth/login` - Proxy de connexion (évite CORS)
 
-#### external/api/factory/
-- **Factories** pour créer les objets complexes liés aux APIs externes
-- Exemple: `ExternalUserFactory.java`, `ExternalRequestFactory.java`
+#### Exemple de requête d'inscription
 
-#### external/notification/
-- Clients et adaptateurs pour les services de notification
-- Exemple: `EmailNotificationClient.java`, `PushNotificationAdapter.java`
+```json
+POST /api/auth/register
+Content-Type: application/json
 
-#### config/
-- Configuration Spring Boot
-- Exemple: `RestTemplateConfig.java`, `SecurityConfig.java`
+{
+  "username": "johndoe",
+  "email": "john.doe@example.com",
+  "name": "John Doe",
+  "phoneNumber": "+237675473829",
+  "password": "password123",
+  "role": "customer"
+}
+```
 
-### 4. Presentation (Couche de Présentation)
+#### Exemple de réponse
 
-Cette couche gère l'exposition des API REST et la conversion des données.
+```json
+{
+  "user": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "username": "johndoe",
+    "email": "john.doe@example.com",
+    "name": "John Doe",
+    "phoneNumber": "+237675473829",
+    "role": "customer",
+    "active": true,
+    "createdAt": "2024-05-23T10:30:00"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "success": true,
+  "message": "Utilisateur enregistré avec succès"
+}
+```
 
-#### controller/
-- Contrôleurs REST
-- Exemple: `UserController.java`, `ProductController.java`
+### Documentation interactive
 
-#### dto/
-- DTOs pour l'API REST
-- Utilise le pattern **Builder** pour la construction flexible des objets
-- Exemple: `UserRequestDTO.java`, `UserResponseDTO.java`
+Accédez à la documentation Swagger : http://localhost:8080/swagger-ui.html
 
-#### mapper/
-- Convertisseurs entre les DTOs de la présentation et les DTOs de l'application
-- Exemple: `UserRestMapper.java`, `ProductRestMapper.java`
+## ⚙️ Configuration
 
-#### exception/
-- Gestionnaires d'exceptions globaux
-- Exemple: `GlobalExceptionHandler.java`, `ApiError.java`
+### Variables d'environnement
 
-## Implémentation des Design Patterns
+| Variable | Description | Valeur par défaut |
+|----------|-------------|-------------------|
+| `SPRING_PROFILES_ACTIVE` | Profil Spring actif | `dev` |
+| `SPRING_DATA_CASSANDRA_CONTACT_POINTS` | Adresse Cassandra | `localhost` |
+| `SPRING_DATA_CASSANDRA_PORT` | Port Cassandra | `9045` |
+| `SPRING_DATA_CASSANDRA_KEYSPACE_NAME` | Keyspace Cassandra | `rental` |
+| `external.api.url` | URL de l'API externe | `https://gateway.yowyob.com` |
+
+### Profils disponibles
+
+- **dev** - Développement local avec ScyllaDB
+- **prod** - Production avec configuration optimisée
+
+## 🏛️ Patterns implémentés
 
 ### Pattern Builder
+Utilisé pour la construction flexible des DTOs :
 
-Le pattern Builder est implémenté dans:
-
-1. **presentation/dto/**: Pour construire de manière fluide et flexible les DTOs de requête et de réponse
-   ```java
-   public class UserResponseDTO {
-       private final Long id;
-       private final String name;
-       private final String email;
-       // autres attributs
-
-       private UserResponseDTO(Builder builder) {
-           this.id = builder.id;
-           this.name = builder.name;
-           this.email = builder.email;
-           // initialisation des autres attributs
-       }
-
-       public static class Builder {
-           private Long id;
-           private String name;
-           private String email;
-           // autres attributs
-
-           public Builder id(Long id) {
-               this.id = id;
-               return this;
-           }
-
-           public Builder name(String name) {
-               this.name = name;
-               return this;
-           }
-
-           public Builder email(String email) {
-               this.email = email;
-               return this;
-           }
-
-           // autres méthodes builder
-
-           public UserResponseDTO build() {
-               return new UserResponseDTO(this);
-           }
-       }
-   }
-   ```
-
-2. **external/api/dto/**: Pour construire les objets complexes envoyés aux APIs externes
-   ```java
-   public class ExternalUserRequest {
-       // attributs et implémentation du Builder
-   }
-   ```
+```java
+UserResponse user = UserResponse.builder()
+    .id(UUID.randomUUID())
+    .username("johndoe")
+    .email("john@example.com")
+    .build();
+```
 
 ### Pattern Factory
+Utilisé pour créer les requêtes vers les services externes :
 
-Le pattern Factory est implémenté dans:
+```java
+@Component
+public class ExternalAuthRequestFactory {
+    public ExternalAuthRegisterRequest createRegisterRequest(User user) {
+        return ExternalAuthRegisterRequest.builder()
+            .username(user.getUsername())
+            .email(user.getEmail())
+            .password(user.getPassword())
+            .build();
+    }
+}
+```
 
-1. **external/api/factory/**: Pour créer les divers objets nécessaires à l'interaction avec les APIs externes
-   ```java
-   public class ExternalRequestFactory {
-       public ExternalUserRequest createUserRequest(User user, AdditionalData additionalData) {
-           return new ExternalUserRequest.Builder()
-                   .withUserId(user.getId())
-                   .withUsername(user.getUsername())
-                   .withAdditionalField1(additionalData.getField1())
-                   .withAdditionalField2(additionalData.getField2())
-                   .build();
-       }
-       
-       public ExternalProductRequest createProductRequest(Product product) {
-           // Création d'une requête pour un produit
-       }
-   }
-   ```
+## 🔧 Services externes
 
-2. **external/notification/client/**: Pour créer différents types de notifications
-   ```java
-   public class NotificationFactory {
-       public Notification createEmailNotification(User user, String subject, String content) {
-           return new EmailNotification(user.getEmail(), subject, content);
-       }
-       
-       public Notification createPushNotification(User user, String title, String message) {
-           return new PushNotification(user.getDeviceToken(), title, message);
-       }
-   }
-   ```
+L'application s'intègre avec plusieurs services externes :
 
-## Communication avec les APIs Externes
+### Service d'authentification
+- **URL** : `https://gateway.yowyob.com/auth-service`
+- **Fonctionnalités** : Inscription, connexion, validation de token
+- **Communication** : WebClient (réactif)
 
-La stratégie pour communiquer avec les APIs externes et stocker les données est la suivante:
+### Services de notification (à implémenter)
+- Email, SMS, Push notifications
 
-1. Les données générales sont stockées dans l'API externe
-2. Les données supplémentaires spécifiques à notre application sont stockées dans notre propre base de données
-3. Un identifiant commun est utilisé pour lier les deux ensembles de données
+### Services de paiement (à implémenter)
+- Intégration avec providers de paiement
 
-### Workflow typique:
+## 🧪 Tests
 
-1. Réception d'une requête depuis la couche de présentation
-2. Transformation en objet du domaine
-3. Le service du domaine traite la requête
-4. Pour les données externes:
-   - Utilisation de la Factory pour créer les objets de requête
-   - Appel à l'API externe via le client approprié
-   - Stockage de l'identifiant externe dans notre base de données
-5. Pour les données internes:
-   - Stockage des données spécifiques dans notre base de données
-   - Association avec l'identifiant externe
-6. Transformation du résultat en DTO de réponse
-7. Renvoi de la réponse
+```bash
+# Exécuter tous les tests
+./mvnw test
 
-## Configuration et Déploiement
+# Tests avec couverture
+./mvnw test jacoco:report
+```
 
-Ce projet utilise Gradle comme outil de build et de gestion des dépendances.
+## 📊 Monitoring et logs
 
-### Dépendances principales:
-- Spring Boot Starter Web
-- Spring Boot Starter Data JPA
-- Spring Boot Starter Validation
-- Spring Cloud OpenFeign (pour les clients REST)
-- Lombok (pour réduire le boilerplate)
-- Mapstruct (pour faciliter le mapping entre objets)
-- H2 Database (pour le développement)
-- Spring Boot Starter Test
-- Spring Boot Starter Security
+L'application utilise les loggers Spring Boot standards. Les logs sont configurés pour différents niveaux selon l'environnement.
 
-### Profils de configuration:
-- **application.yml**: Configuration commune
-- **application-dev.yml**: Configuration de développement (H2, logging détaillé, etc.)
-- **application-prod.yml**: Configuration de production (base de données réelle, etc.)
+## 🚢 Déploiement
 
-## Tests
+### Build de l'image Docker
 
-Chaque couche dispose de ses propres tests unitaires et d'intégration:
+```bash
+docker build -t easy-rental-car:latest .
+```
 
-- Tests unitaires pour la logique du domaine
-- Tests d'intégration pour les repositories
-- Tests unitaires pour les contrôleurs REST avec MockMvc
-- Tests avec WireMock pour simuler les APIs externes
+### Variables d'environnement de production
 
-## Démarrage
+```bash
+export SPRING_PROFILES_ACTIVE=prod
+export SPRING_DATA_CASSANDRA_CONTACT_POINTS=production-cassandra-host
+export SPRING_DATA_CASSANDRA_USERNAME=cassandra_user
+export SPRING_DATA_CASSANDRA_PASSWORD=secure_password
+```
 
-1. Cloner le repository: `git clone https://github.com/example/clean-architecture-project.git`
-2. Accéder au dossier: `cd clean-architecture-project`
-3. Compiler le projet: `./gradlew build`
-4. Exécuter l'application: `./gradlew bootRun`
+## 🤝 Contribution
 
-L'application sera accessible à l'adresse: http://localhost:8080
+1. Fork le projet
+2. Créer une branche feature (`git checkout -b feature/AmazingFeature`)
+3. Commit les changements (`git commit -m 'Add some AmazingFeature'`)
+4. Push vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrir une Pull Request
 
-## Conclusion
+### Standards de code
 
-Cette architecture permet une séparation claire des responsabilités et facilite la maintenance et l'évolution de l'application. Les patterns Builder et Factory permettent de gérer efficacement la complexité des interactions avec les APIs externes tout en gardant le code propre et modulaire.
+- Utiliser Lombok pour réduire le boilerplate
+- Suivre les conventions de nommage Java
+- Documenter les méthodes publiques
+- Écrire des tests pour les nouvelles fonctionnalités
+
+## 📝 Changelog
+
+### Version 0.0.1-SNAPSHOT
+- ✅ Implémentation de l'architecture Clean
+- ✅ Système d'authentification avec service externe
+- ✅ Intégration Cassandra/ScyllaDB
+- ✅ Documentation Swagger
+- ✅ Containerisation Docker
+
+## 📄 License
+
+Ce projet est propriétaire de **Yowyob Inc.**
+
+## 👥 Équipe
+
+- **Développement** : Équipe Yowyob
+- **Architecture** : Clean Architecture avec Spring Boot
+- **Contact** : [contact@yowyob.com](mailto:contact@yowyob.com)
+
+---
+
+## 🔗 Liens utiles
+
+- [Documentation Spring Boot](https://spring.io/projects/spring-boot)
+- [ScyllaDB Documentation](https://docs.scylladb.com/)
+- [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+- [API Documentation](http://localhost:8080/swagger-ui.html) (quand l'app est démarrée)
+
+---
+
+**Made with ❤️ by Yowyob Inc.**
